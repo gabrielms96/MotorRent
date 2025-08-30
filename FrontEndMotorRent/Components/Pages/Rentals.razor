@@ -1,0 +1,476 @@
+@page "/rentals"
+@using FrontEndMotorRent.Models
+@using FrontEndMotorRent.Services
+@inject RentalService RentalService
+@inject MotorcycleService MotorcycleService
+@inject DeliveryPersonService DeliveryPersonService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Locações - MotorRent</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2">Gerenciamento de Locações</h1>
+                <button class="btn btn-warning" @onclick="ShowCreateModal">
+                    <i class="bi bi-calendar-plus"></i> Nova Locação
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Buscar Locação por ID</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind="searchRentalId" placeholder="Digite o ID da locação" />
+                        <button class="btn btn-outline-primary" @onclick="SearchRental" disabled="@isSearching">
+                            @if (isSearching)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (searchedRental != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Locação Encontrada</h5>
+                            <button class="btn btn-sm btn-success" @onclick="ShowReturnModal">
+                                <i class="bi bi-arrow-return-left"></i> Devolver
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p><strong>ID da Locação:</strong> @searchedRental.Id</p>
+                                <p><strong>ID do Entregador:</strong> @searchedRental.DeliveryPersonId</p>
+                                <p><strong>ID da Motocicleta:</strong> @searchedRental.MotorcycleId</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Data de Início:</strong> @searchedRental.StartDate.ToString("dd/MM/yyyy")</p>
+                                <p><strong>Data Prevista de Término:</strong> @searchedRental.ExpectedEndDate.ToString("dd/MM/yyyy")</p>
+                                <p><strong>Valor da Diária:</strong> @searchedRental.DailyRate.ToString("C")</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Custo Total:</strong> @searchedRental.TotalCost.ToString("C")</p>
+                                @if (searchedRental.FineAmount.HasValue)
+                                {
+                                    <p><strong>Multa:</strong> @searchedRental.FineAmount.Value.ToString("C")</p>
+                                }
+                                @if (searchedRental.FinalValue.HasValue)
+                                {
+                                    <p><strong>Valor Final:</strong> @searchedRental.FinalValue.Value.ToString("C")</p>
+                                }
+                            </div>
+                        </div>
+                        @if (searchedRental.ReturnDate.HasValue)
+                        {
+                            <div class="alert alert-success mt-3">
+                                <i class="bi bi-check-circle"></i> Locação devolvida em @searchedRental.ReturnDate.Value.ToString("dd/MM/yyyy")
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-clock"></i> Locação ativa - Aguardando devolução
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (searchPerformed && searchedRental == null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Nenhuma locação encontrada com o ID informado.
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Seção de planos de locação disponíveis -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Planos de Locação Disponíveis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Plano 7 dias</h6>
+                                    <p class="card-text">R$ 30,00/dia</p>
+                                    <small class="text-muted">Taxa de multa: 20%</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Plano 15 dias</h6>
+                                    <p class="card-text">R$ 28,00/dia</p>
+                                    <small class="text-muted">Taxa de multa: 40%</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Plano 30 dias</h6>
+                                    <p class="card-text">R$ 22,00/dia</p>
+                                    <small class="text-muted">Taxa de multa: 60%</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Plano 45 dias</h6>
+                                    <p class="card-text">R$ 20,00/dia</p>
+                                    <small class="text-muted">Taxa de multa: 80%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para criar nova locação -->
+@if (showCreateModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Locação</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newRental" OnValidSubmit="CreateRental">
+                        <DataAnnotationsValidator />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ID da Locação</label>
+                                    <InputText class="form-control" @bind-Value="newRental.Id" placeholder="ID único da locação" />
+                                    <ValidationMessage For="@(() => newRental.Id)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ID do Entregador</label>
+                                    <InputText class="form-control" @bind-Value="newRental.DeliveryPersonId" placeholder="ID do entregador" />
+                                    <ValidationMessage For="@(() => newRental.DeliveryPersonId)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">ID da Motocicleta</label>
+                                    <InputText class="form-control" @bind-Value="newRental.MotorcycleId" placeholder="ID da motocicleta" />
+                                    <ValidationMessage For="@(() => newRental.MotorcycleId)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Plano de Locação</label>
+                                    <InputSelect class="form-select" @bind-Value="newRental.IdPlan" @onchange="OnPlanChanged">
+                                        <option value="0">Selecione o plano</option>
+                                        <option value="1">7 dias - R$ 30,00/dia</option>
+                                        <option value="2">15 dias - R$ 28,00/dia</option>
+                                        <option value="3">30 dias - R$ 22,00/dia</option>
+                                        <option value="4">45 dias - R$ 20,00/dia</option>
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => newRental.IdPlan)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Data de Início</label>
+                                    <InputDate class="form-control" @bind-Value="newRental.StartDate" @onchange="UpdateEndDate" />
+                                    <ValidationMessage For="@(() => newRental.StartDate)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Data Prevista de Término</label>
+                                    <InputDate class="form-control" @bind-Value="newRental.ExpectedEndDate" readonly />
+                                    <ValidationMessage For="@(() => newRental.ExpectedEndDate)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Valor da Diária</label>
+                                    <InputNumber class="form-control" @bind-Value="newRental.DailyRate" readonly />
+                                    <ValidationMessage For="@(() => newRental.DailyRate)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Custo Total Estimado</label>
+                                    <input type="text" class="form-control" value="@calculatedTotalCost.ToString("C")" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideCreateModal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning" disabled="@isCreating">
+                                @if (isCreating)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                Criar Locação
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal para devolução -->
+@if (showReturnModal && searchedRental != null)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Devolução de Locação</h5>
+                    <button type="button" class="btn-close" @onclick="HideReturnModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID da Locação:</strong> @searchedRental.Id</p>
+                    <p><strong>Data Prevista de Término:</strong> @searchedRental.ExpectedEndDate.ToString("dd/MM/yyyy")</p>
+                    <div class="mb-3">
+                        <label class="form-label">Data de Devolução</label>
+                        <input type="date" class="form-control" @bind="returnDate" />
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> A devolução será processada com base na data informada e o valor final será calculado automaticamente.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideReturnModal">Cancelar</button>
+                    <button type="button" class="btn btn-success" @onclick="ProcessReturn" disabled="@isReturning">
+                        @if (isReturning)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Processar Devolução
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string searchRentalId = string.Empty;
+    private RentalDto? searchedRental;
+    private bool isSearching = false;
+    private bool searchPerformed = false;
+    
+    private bool showCreateModal = false;
+    private bool isCreating = false;
+    private RentalCreateDto newRental = new();
+    private decimal calculatedTotalCost = 0;
+    
+    private bool showReturnModal = false;
+    private bool isReturning = false;
+    private DateTime returnDate = DateTime.Now;
+
+    protected override void OnInitialized()
+    {
+        newRental.StartDate = DateTime.Now.AddDays(1);
+        newRental.ExpectedEndDate = DateTime.Now.AddDays(8);
+    }
+
+    private async Task SearchRental()
+    {
+        if (string.IsNullOrWhiteSpace(searchRentalId))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Por favor, digite um ID para buscar.");
+            return;
+        }
+
+        isSearching = true;
+        searchedRental = await RentalService.GetRentalByIdAsync(searchRentalId);
+        searchPerformed = true;
+        isSearching = false;
+    }
+
+    private void ShowCreateModal()
+    {
+        newRental = new RentalCreateDto
+        {
+            StartDate = DateTime.Now.AddDays(1),
+            ExpectedEndDate = DateTime.Now.AddDays(8)
+        };
+        calculatedTotalCost = 0;
+        showCreateModal = true;
+    }
+
+    private void HideCreateModal()
+    {
+        showCreateModal = false;
+        newRental = new RentalCreateDto();
+    }
+
+    private void OnPlanChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int planId))
+        {
+            newRental.IdPlan = planId;
+            
+            // Definir valores baseado no plano
+            switch (planId)
+            {
+                case 1: // 7 dias
+                    newRental.DailyRate = 30.00m;
+                    newRental.ExpectedEndDate = newRental.StartDate.AddDays(7);
+                    break;
+                case 2: // 15 dias
+                    newRental.DailyRate = 28.00m;
+                    newRental.ExpectedEndDate = newRental.StartDate.AddDays(15);
+                    break;
+                case 3: // 30 dias
+                    newRental.DailyRate = 22.00m;
+                    newRental.ExpectedEndDate = newRental.StartDate.AddDays(30);
+                    break;
+                case 4: // 45 dias
+                    newRental.DailyRate = 20.00m;
+                    newRental.ExpectedEndDate = newRental.StartDate.AddDays(45);
+                    break;
+                default:
+                    newRental.DailyRate = 0;
+                    break;
+            }
+            
+            CalculateTotalCost();
+        }
+    }
+
+    private void UpdateEndDate()
+    {
+        if (newRental.IdPlan > 0)
+        {
+            int days = newRental.IdPlan switch
+            {
+                1 => 7,
+                2 => 15,
+                3 => 30,
+                4 => 45,
+                _ => 7
+            };
+            newRental.ExpectedEndDate = newRental.StartDate.AddDays(days);
+            CalculateTotalCost();
+        }
+    }
+
+    private void CalculateTotalCost()
+    {
+        if (newRental.IdPlan > 0 && newRental.DailyRate > 0)
+        {
+            int days = (newRental.ExpectedEndDate - newRental.StartDate).Days;
+            calculatedTotalCost = newRental.DailyRate * days;
+            newRental.TotalCost = calculatedTotalCost;
+        }
+    }
+
+    private async Task CreateRental()
+    {
+        isCreating = true;
+        
+        var success = await RentalService.CreateRentalAsync(newRental);
+        
+        if (success)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Locação criada com sucesso!");
+            HideCreateModal();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Erro ao criar locação. Verifique os dados informados.");
+        }
+        
+        isCreating = false;
+    }
+
+    private void ShowReturnModal()
+    {
+        returnDate = DateTime.Now;
+        showReturnModal = true;
+    }
+
+    private void HideReturnModal()
+    {
+        showReturnModal = false;
+    }
+
+    private async Task ProcessReturn()
+    {
+        if (searchedRental == null)
+            return;
+
+        isReturning = true;
+        
+        var returnRental = new RentalCreateDto
+        {
+            Id = searchedRental.Id ?? string.Empty,
+            DeliveryPersonId = searchedRental.DeliveryPersonId ?? string.Empty,
+            MotorcycleId = searchedRental.MotorcycleId ?? string.Empty,
+            StartDate = searchedRental.StartDate,
+            ExpectedEndDate = searchedRental.ExpectedEndDate,
+            ReturnDate = returnDate,
+            IdPlan = searchedRental.IdPlan,
+            DailyRate = searchedRental.DailyRate,
+            TotalCost = searchedRental.TotalCost
+        };
+        
+        var success = await RentalService.ReturnRentalAsync(returnRental);
+        
+        if (success)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Devolução processada com sucesso!");
+            HideReturnModal();
+            await SearchRental(); // Recarregar dados
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Erro ao processar devolução.");
+        }
+        
+        isReturning = false;
+    }
+} 

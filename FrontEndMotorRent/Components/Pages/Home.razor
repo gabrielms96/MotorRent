@@ -1,0 +1,96 @@
+﻿@page "/"
+
+<PageTitle>Dashboard - MotorRent</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 mb-3">Dashboard - Sistema MotorRent</h1>
+            <p class="lead">Bem-vindo ao sistema de gerenciamento de locação de motocicletas.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <span class="bi bi-bicycle display-4 text-primary"></span>
+                    </div>
+                    <h5 class="card-title">Gerenciar Motos</h5>
+                    <p class="card-text">Cadastre, visualize e gerencie as motocicletas disponíveis para locação.</p>
+                    <a href="/motorcycles" class="btn btn-primary">Acessar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <span class="bi bi-person-fill display-4 text-success"></span>
+                    </div>
+                    <h5 class="card-title">Entregadores</h5>
+                    <p class="card-text">Cadastre e gerencie os entregadores que podem alugar motocicletas.</p>
+                    <a href="/delivery-persons" class="btn btn-success">Acessar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <span class="bi bi-calendar-check display-4 text-warning"></span>
+                    </div>
+                    <h5 class="card-title">Locações</h5>
+                    <p class="card-text">Gerencie as locações ativas, crie novas locações e processe devoluções.</p>
+                    <a href="/rentals" class="btn btn-warning">Acessar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <span class="bi bi-list-ul display-4 text-info"></span>
+                    </div>
+                    <h5 class="card-title">Planos de Locação</h5>
+                    <p class="card-text">Configure os planos de locação com diferentes durações e preços.</p>
+                    <a href="/rental-plans" class="btn btn-info">Acessar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Funcionalidades do Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Gestão de Motocicletas</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check-circle text-success"></i> Cadastro de motos</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Consulta por placa</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Notificações para motos 2024</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Gestão de Entregadores</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check-circle text-success"></i> Cadastro de entregadores</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Upload de CNH</li>
+                                <li><i class="bi bi-check-circle text-success"></i> Validação de documentos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

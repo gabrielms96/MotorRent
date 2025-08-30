@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: bitnami/postgresql:latest
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=MotorRentDB
+    volumes:
+      - MotorRentDB_pg_data:/bitnami/postgresql
+
+  rabbitmq:
+    image: bitnami/rabbitmq:latest
+    ports:
+      - 5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+
+    
+
+volumes:
+    MotorRentDB_pg_data:

@@ -1,0 +1,140 @@
+@page "/rental-plans"
+@using FrontEndMotorRent.Models
+
+<PageTitle>Planos de Locação - MotorRent</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2">Planos de Locação</h1>
+            <p class="lead">Confira os planos disponíveis para locação de motocicletas.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-primary h-100">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="card-title mb-0">Plano 7 dias</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-6 text-primary mb-3">R$ 30,00</div>
+                    <p class="text-muted">por dia</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> 7 dias de locação</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Ideal para uso semanal</li>
+                        <li><i class="bi bi-exclamation-triangle text-warning"></i> Taxa de multa: 20%</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <small class="text-muted">Total: R$ 210,00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-success h-100">
+                <div class="card-header bg-success text-white text-center">
+                    <h5 class="card-title mb-0">Plano 15 dias</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-6 text-success mb-3">R$ 28,00</div>
+                    <p class="text-muted">por dia</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> 15 dias de locação</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Ótimo custo-benefício</li>
+                        <li><i class="bi bi-exclamation-triangle text-warning"></i> Taxa de multa: 40%</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <small class="text-muted">Total: R$ 420,00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-warning h-100">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h5 class="card-title mb-0">Plano 30 dias</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-6 text-warning mb-3">R$ 22,00</div>
+                    <p class="text-muted">por dia</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> 30 dias de locação</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Melhor para uso mensal</li>
+                        <li><i class="bi bi-exclamation-triangle text-warning"></i> Taxa de multa: 60%</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <small class="text-muted">Total: R$ 660,00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-info h-100">
+                <div class="card-header bg-info text-white text-center">
+                    <h5 class="card-title mb-0">Plano 45 dias</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-6 text-info mb-3">R$ 20,00</div>
+                    <p class="text-muted">por dia</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle text-success"></i> 45 dias de locação</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Maior economia</li>
+                        <li><i class="bi bi-exclamation-triangle text-warning"></i> Taxa de multa: 80%</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <small class="text-muted">Total: R$ 900,00</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informações Importantes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-info-circle text-primary"></i> Sobre os Planos</h6>
+                            <ul>
+                                <li>Todos os planos incluem seguro básico</li>
+                                <li>Preços válidos para motocicletas padrão</li>
+                                <li>Locação mínima de acordo com o plano escolhido</li>
+                                <li>Combustível por conta do locatário</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-exclamation-triangle text-warning"></i> Política de Multas</h6>
+                            <ul>
+                                <li>Multa aplicada em caso de devolução antecipada</li>
+                                <li>Multa adicional por atraso na devolução</li>
+                                <li>Valores calculados sobre o total não utilizado</li>
+                                <li>Avarias e danos cobrados separadamente</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-success">
+                <h6><i class="bi bi-lightbulb"></i> Dica</h6>
+                <p class="mb-0">Para locações mais longas, escolha planos de maior duração para obter melhor custo-benefício. Para uso esporádico, o plano de 7 dias oferece maior flexibilidade.</p>
+            </div>
+        </div>
+    </div>
+</div> 

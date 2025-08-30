@@ -1,0 +1,317 @@
+@page "/delivery-persons"
+@using FrontEndMotorRent.Models
+@using FrontEndMotorRent.Services
+@inject DeliveryPersonService DeliveryPersonService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<PageTitle>Entregadores - MotorRent</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2">Gerenciamento de Entregadores</h1>
+                <button class="btn btn-success" @onclick="ShowCreateModal">
+                    <i class="bi bi-person-plus"></i> Novo Entregador
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Buscar Entregador por CNPJ</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" @bind="searchCNPJ" placeholder="Digite o CNPJ" maxlength="18" />
+                        <button class="btn btn-outline-primary" @onclick="SearchDeliveryPerson" disabled="@isSearching">
+                            @if (isSearching)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (searchedDeliveryPerson != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Entregador Encontrado</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>ID:</strong> @searchedDeliveryPerson.Id</p>
+                                <p><strong>Nome:</strong> @searchedDeliveryPerson.Name</p>
+                                <p><strong>CNPJ:</strong> @searchedDeliveryPerson.CNPJ</p>
+                                <p><strong>Data de Nascimento:</strong> @searchedDeliveryPerson.BirthDate.ToString("dd/MM/yyyy")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Número da CNH:</strong> @searchedDeliveryPerson.CNHNumber</p>
+                                <p><strong>Tipo da CNH:</strong> @searchedDeliveryPerson.CNHType</p>
+                                <p><strong>Imagem da CNH:</strong> 
+                                    @if (!string.IsNullOrEmpty(searchedDeliveryPerson.CNHImagePath))
+                                    {
+                                        <span class="badge bg-success">Cadastrada</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">Não cadastrada</span>
+                                    }
+                                </p>
+                                <button class="btn btn-sm btn-primary" @onclick="ShowUpdateCNHModal">
+                                    <i class="bi bi-camera"></i> Atualizar Imagem CNH
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (searchPerformed && searchedDeliveryPerson == null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Nenhum entregador encontrado com o CNPJ informado.
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal para criar novo entregador -->
+@if (showCreateModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Entregador</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="newDeliveryPerson" OnValidSubmit="CreateDeliveryPerson">
+                        <DataAnnotationsValidator />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Identificador</label>
+                                    <InputText class="form-control" @bind-Value="newDeliveryPerson.Id" placeholder="ID único do entregador" />
+                                    <ValidationMessage For="@(() => newDeliveryPerson.Id)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nome Completo</label>
+                                    <InputText class="form-control" @bind-Value="newDeliveryPerson.Name" placeholder="Nome do entregador" />
+                                    <ValidationMessage For="@(() => newDeliveryPerson.Name)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">CNPJ</label>
+                                    <InputText class="form-control" @bind-Value="newDeliveryPerson.CNPJ" placeholder="00.000.000/0000-00" />
+                                    <ValidationMessage For="@(() => newDeliveryPerson.CNPJ)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Data de Nascimento</label>
+                                    <InputDate class="form-control" @bind-Value="newDeliveryPerson.BirthDate" />
+                                    <ValidationMessage For="@(() => newDeliveryPerson.BirthDate)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Número da CNH</label>
+                                    <InputText class="form-control" @bind-Value="newDeliveryPerson.CNHNumber" placeholder="Número da CNH" />
+                                    <ValidationMessage For="@(() => newDeliveryPerson.CNHNumber)" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo da CNH</label>
+                                    <InputSelect class="form-select" @bind-Value="newDeliveryPerson.CNHType">
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="AB">AB</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="E">E</option>
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => newDeliveryPerson.CNHType)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Caminho da Imagem da CNH (opcional)</label>
+                                    <InputText class="form-control" @bind-Value="newDeliveryPerson.CNHImagePath" placeholder="Caminho da imagem da CNH" />
+                                    <div class="form-text">Este campo é opcional e pode ser preenchido posteriormente.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="HideCreateModal">Cancelar</button>
+                            <button type="submit" class="btn btn-success" disabled="@isCreating">
+                                @if (isCreating)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                Criar Entregador
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal para atualizar imagem da CNH -->
+@if (showUpdateCNHModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Atualizar Imagem da CNH</h5>
+                    <button type="button" class="btn-close" @onclick="HideUpdateCNHModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Caminho da Nova Imagem da CNH</label>
+                        <input type="text" class="form-control" @bind="newCNHImagePath" placeholder="Caminho da imagem da CNH" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideUpdateCNHModal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="UpdateCNHImage" disabled="@isUpdatingCNH">
+                        @if (isUpdatingCNH)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Atualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string searchCNPJ = string.Empty;
+    private DeliveryPersonDto? searchedDeliveryPerson;
+    private bool isSearching = false;
+    private bool searchPerformed = false;
+    
+    private bool showCreateModal = false;
+    private bool isCreating = false;
+    private DeliveryPersonCreateDto newDeliveryPerson = new();
+    
+    private bool showUpdateCNHModal = false;
+    private bool isUpdatingCNH = false;
+    private string newCNHImagePath = string.Empty;
+
+    private async Task SearchDeliveryPerson()
+    {
+        if (string.IsNullOrWhiteSpace(searchCNPJ))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Por favor, digite um CNPJ para buscar.");
+            return;
+        }
+
+        isSearching = true;
+        searchedDeliveryPerson = await DeliveryPersonService.GetDeliveryPersonByCNPJAsync(searchCNPJ);
+        searchPerformed = true;
+        isSearching = false;
+    }
+
+    private void ShowCreateModal()
+    {
+        newDeliveryPerson = new DeliveryPersonCreateDto { BirthDate = DateTime.Now.AddYears(-25) };
+        showCreateModal = true;
+    }
+
+    private void HideCreateModal()
+    {
+        showCreateModal = false;
+        newDeliveryPerson = new DeliveryPersonCreateDto();
+    }
+
+    private async Task CreateDeliveryPerson()
+    {
+        isCreating = true;
+        
+        var success = await DeliveryPersonService.CreateDeliveryPersonAsync(newDeliveryPerson);
+        
+        if (success)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Entregador criado com sucesso!");
+            HideCreateModal();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Erro ao criar entregador. Verifique se o CNPJ ou CNH não estão duplicados.");
+        }
+        
+        isCreating = false;
+    }
+
+    private void ShowUpdateCNHModal()
+    {
+        newCNHImagePath = searchedDeliveryPerson?.CNHImagePath ?? string.Empty;
+        showUpdateCNHModal = true;
+    }
+
+    private void HideUpdateCNHModal()
+    {
+        showUpdateCNHModal = false;
+        newCNHImagePath = string.Empty;
+    }
+
+    private async Task UpdateCNHImage()
+    {
+        if (searchedDeliveryPerson == null || string.IsNullOrWhiteSpace(newCNHImagePath))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Por favor, informe o caminho da imagem.");
+            return;
+        }
+
+        isUpdatingCNH = true;
+        
+        var success = await DeliveryPersonService.UpdateCNHImageAsync(searchedDeliveryPerson.CNPJ, newCNHImagePath);
+        
+        if (success)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Imagem da CNH atualizada com sucesso!");
+            searchedDeliveryPerson.CNHImagePath = newCNHImagePath;
+            HideUpdateCNHModal();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Erro ao atualizar imagem da CNH.");
+        }
+        
+        isUpdatingCNH = false;
+    }
+} 
