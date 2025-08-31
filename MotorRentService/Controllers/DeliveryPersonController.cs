@@ -108,7 +108,6 @@ public class DeliveryPersonController : Controller
     [HttpPost("{cnpj}/cnh")]
     [ProducesResponseType(typeof(MotorcycleDto), StatusCodes.Status201Created)]
     [ProducesResponseType(400)]
-    []
     public ActionResult UpdateCNHImage(string cnpj, string cnhImagePath)
     {
         try

@@ -1,4 +1,11 @@
-﻿using MotorRentService.Models;
+﻿#region Mainetence
+/*
+Comment: Add try catch.
+Created: 08/31/2024 18:31
+Author: Gabriel MS
+*/
+#endregion
+using MotorRentService.Models;
 
 namespace MotorRentService.Data
 {
@@ -24,7 +31,7 @@ namespace MotorRentService.Data
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.InnerException.Message);
+                throw new Exception(ex.Message);
             }
         }
 
