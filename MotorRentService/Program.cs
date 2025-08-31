@@ -1,3 +1,12 @@
+#region Mainetence
+/*
+Comment: Created Mainetence Region and correction mapping.
+Created: 08/31/2024 15:00
+Author: Gabriel MS
+*/
+#endregion
+
+using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MotorRentService.Data;
@@ -37,12 +46,12 @@ builder.Services.AddScoped<IRentalRepository, RentalRepository>();
 builder.Services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
 
 // AutoMapper
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddAutoMapper(typeof(DeliveryPersonProfile));
-builder.Services.AddAutoMapper(typeof(MotorcycleProfile));
-builder.Services.AddAutoMapper(typeof(NotificationProfile));
-builder.Services.AddAutoMapper(typeof(RentalPlanProfile));
-builder.Services.AddAutoMapper(typeof(RentalProfile));
+builder.Services.AddAutoMapper(cfg => cfg.Internal().MethodMappingEnabled = false, 
+    typeof(DeliveryPersonProfile), 
+    typeof(MotorcycleProfile), 
+    typeof(NotificationProfile), 
+    typeof(RentalPlanProfile), 
+    typeof(RentalProfile));
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -61,18 +70,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Ensure database is created
+// Apply pending migrations
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        context.Database.EnsureCreated();
-        Log.Information("Database connection successful");
+        context.Database.Migrate();
+        Log.Information("Database migrations applied successfully");
     }
     catch (Exception ex)
     {
-        Log.Fatal(ex, "Database connection failed");
+        Log.Fatal(ex, "Database migration failed");
         throw;
     }
 }

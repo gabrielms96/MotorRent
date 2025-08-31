@@ -1,4 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#region Mainetence
+/*
+Comment: Created Mainetence Region and correction JsonPropertyName StartDate.
+Created: 08/31/2024 15:00
+Author: Gabriel MS
+*/
+#endregion
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MotorRentService.Dtos
@@ -21,7 +28,7 @@ namespace MotorRentService.Dtos
         public DateTime ActualDate { get; set; }
 
         [Required]
-        [JsonPropertyName("entregador_id")]
+        [JsonPropertyName("data_inicio")]
         public DateTime StartDate { get; set; }
 
         [Required]
