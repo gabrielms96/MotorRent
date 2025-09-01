@@ -2,17 +2,27 @@
 /*
 Comment: Created Mainetence Region and correction mapping.
 Created: 08/31/2024 15:00
-Author: Gabriel MS
+Author:  Gabriel MS
+
+Comment: Add Publisher and Register Event.
+Created: 08/31/2024 21:10
+Author:  Gabriel MS
 */
 #endregion
 
 using AutoMapper.Internal;
+using Microsoft.Build.Execution;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using MotorRentService.Controllers;
 using MotorRentService.Data;
+using MotorRentService.Dtos;
 using MotorRentService.Models;
+using MotorRentService.Motorcycles.Commands.CreateMotorcycle;
 using MotorRentService.Profiles;
 using MotorRentService.RabbitMqClient;
+using MotorRentService.Services;
 using Serilog;
 
 
@@ -45,6 +55,9 @@ builder.Services.AddScoped<IRentalRepository, RentalRepository>();
 // RabbitMQ Client
 builder.Services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
 
+// Event Publisher
+builder.Services.AddScoped<IEventPublisher, EventPublisher>();
+
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.Internal().MethodMappingEnabled = false, 
     typeof(DeliveryPersonProfile), 
@@ -52,6 +65,8 @@ builder.Services.AddAutoMapper(cfg => cfg.Internal().MethodMappingEnabled = fals
     typeof(NotificationProfile), 
     typeof(RentalPlanProfile), 
     typeof(RentalProfile));
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateMotorcycleCommandHandler).Assembly));
 
 builder.Services.AddSwaggerGen(c =>
 {

@@ -1,18 +1,24 @@
+#region Mainetence
+/*
+Comment: Roles Registration motorcycle, delete and update motorcycles, .
+Created: 08/31/2024 21:10
+Author:  Gabriel MS
+*/
+#endregion
+using Amazon.JSII.JsonModel.Api.Response;
 using AutoMapper;
 using MediatR;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.WebEncoders.Testing;
 using MotorRentService.Data;
 using MotorRentService.Dtos;
 using MotorRentService.Models;
 using MotorRentService.Motorcycles.Commands.CreateMotorcycle;
 using MotorRentService.RabbitMqClient;
+using System.Data;
 
 namespace MotorRentService.Controllers;
 
-[Route("api/[controller]")]
+[Route("motos/")]
 [ApiController]
 [Produces("application/json")]
 public class MotorcycleController : ControllerBase
@@ -38,20 +44,40 @@ public class MotorcycleController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Gets a motorcycle by ID
+    /// </summary>
+    /// <param name="id">Motorcycle ID</param>
+    /// <returns>Motorcycle details</returns>
     [HttpGet("GetAllMotorcycles")]
     [ProducesResponseType(typeof(MotorcycleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<IEnumerable<MotorcycleDto>> GetAllMotorcycles()
     {
-        _logger.LogInformation("START - Getting all motorcycle with ID");
-
-        var motorcycle = _repository.GetAllAsync(); ;
-        if (motorcycle != null)
+        try
         {
-            _logger.LogInformation("END - Getting all motorcycle: {count}", motorcycle.Result.Count());
-            return Ok(_mapper.Map<IEnumerable<MotorcycleDto>>(motorcycle));
+            _logger.LogInformation("START - Getting all motorcycle");
+
+            var motorcycle = _repository.GetAllAsync();
+            if (motorcycle.Result.Count() != 0)
+            {
+                _logger.LogInformation("END - Getting all motorcycle: {count}", motorcycle.Result.Count());
+                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<MotorcycleDto>>(motorcycle.Result));
+            }
+            _logger.LogInformation("END - Getting all motorcycle: NO RECORDS");
+            throw new Exception("No records found");
         }
-        _logger.LogInformation("END - Getting all motorcycle: NO RECORDS");
-        return NotFound();
+        catch (Exception ex)
+        {
+            _logger.LogInformation("ERRO - Gettin all motorcycle:{error}", ex.Message);
+
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
+            };
+
+            return BadRequest(response);
+        }
     }
 
     /// <summary>
@@ -62,18 +88,66 @@ public class MotorcycleController : ControllerBase
     [HttpGet("{id}", Name = "GetMotorcyclesById")]
     [ProducesResponseType(typeof(MotorcycleDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<MotorcycleDto> GetMotorcyclesById(string id)
+    public ActionResult<IEnumerable<MotorcycleDto>> GetMotorcyclesById(string id)
     {
-        _logger.LogInformation("START - Getting motorcycle with ID: {Id}", id);
-
-        var motorcycle = _repository.GetMotorcyclesById(id);
-        if (motorcycle != null)
+        try
         {
-            _logger.LogInformation("END - Getting motorcycle with ID: {Id}", id);
-            return Ok(_mapper.Map<MotorcycleDto>(motorcycle));
+            _logger.LogInformation("START - Getting motorcycle with ID: {Id}", id);
+
+            var motorcycle = _repository.GetMotorcyclesById(id);
+            if (motorcycle.Result.Count() > 0)
+            {
+                _logger.LogInformation("END - Getting motorcycle with ID: {Id}", id);
+                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<Motorcycle>>(motorcycle.Result));
+            }
+            _logger.LogInformation("END - Getting motorcycle with ID: {Id} - NO RECORDS", id);
+            return NotFound();
         }
-        _logger.LogInformation("END - Getting motorcycle with ID: {Id} - NO RECORDS", id);
-        return NotFound();
+        catch (Exception)
+        {
+
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
+            };
+
+            return BadRequest(response);
+        }
+    }
+
+    /// <summary>
+    /// Gets a motorcycle by ID
+    /// </summary>
+    /// <param name="id">Motorcycle ID</param>
+    /// <returns>Motorcycle details</returns>
+    [HttpGet("GetMotorcyclesByLicensePlate")]
+    [ProducesResponseType(typeof(MotorcycleDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult<IEnumerable<MotorcycleDto>> GetMotorcyclesByLicensePlate(string id)
+    {
+        try
+        {
+            _logger.LogInformation("START - Getting motorcycle with License Plate: {Id}", id);
+
+            var motorcycle = _repository.GetByLicensePlateAsync(id);
+            if (motorcycle.Result.Count() > 0)
+            {
+                _logger.LogInformation("END - Getting motorcycle with License Plate: {Id}", id);
+                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<Motorcycle>>(motorcycle.Result));
+            }
+            _logger.LogInformation("END - Getting motorcycle with License Plate: {Id} - NO RECORDS", id);
+            return NotFound();
+        }
+        catch (Exception)
+        {
+
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
+            };
+
+            return BadRequest(response);
+        }
     }
 
     /// <summary>
@@ -81,82 +155,120 @@ public class MotorcycleController : ControllerBase
     /// </summary>
     /// <param name="command">Motorcycle creation data</param>
     /// <returns>Created motorcycle</returns>
-    [HttpPost]
+    [HttpPost("CreateMotorcycle")]
     [ProducesResponseType(typeof(MotorcycleDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MotorcycleCreateDto>> CreateMotorcycle([FromBody] CreateMotorcycleCommand command)
     {
-        _logger.LogInformation("Creating motorcycle with plate: {LicensePlate}", command.LicensePlate);
-
-        var result = await _mediator.Send(command);
-
-        if (result.Year.Equals(2024))
+        try
         {
-            Notification notification = new Notification
+            _logger.LogInformation("Creating motorcycle with plate: {LicensePlate}", command.LicensePlate);
+
+            var result = await _mediator.Send(command);
+
+            if (result.Year.Equals(2024))
             {
-                DeliveryPersonId = "System",
-                MotorcycleId = result.Id,
-                Message = "New motorcycle from year 2024 added.",
-                IsProcessed = false
+                Notification notification = new Notification
+                {
+                    DeliveryPersonId = "System",
+                    MotorcycleId = result.Id,
+                    Message = "New motorcycle from year 2024 added.",
+                    IsProcessed = false
+                };
+
+                var notificationMap = _mapper.Map<NotificationDto>(notification);
+                notification.Evento = "NotificationPublished";
+                _rabbitMqClient.SendNewNotification(notificationMap);
+            }
+
+            return CreatedAtAction(nameof(GetMotorcyclesById), new { id = result.Id }, result);
+        }
+        catch (Exception)
+        {
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
             };
 
-            var notificationMap = _mapper.Map<NotificationDto>(notification);
-            notification.Evento = "NotificationPublished";
-            _rabbitMqClient.SendNewNotification(notificationMap);
+            return BadRequest(response);
         }
-
-        return CreatedAtAction(nameof(GetMotorcyclesById), new { id = result.Id }, result);
     }
 
-    [HttpDelete("DeleteMotorcycle")]
+
     /// <summary>
     /// Delete a motorcycle
     /// </summary>
     /// <param name="Motorcycle">Motorcycle creation data</param>
     /// <returns>Created motorcycle</returns>
-    [HttpPost("{id}", Name = "DeleteMotorcycle")]
+    [HttpDelete("{id}", Name = "DeleteMotorcycle")]
     [ProducesResponseType(typeof(MotorcycleDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MotorcycleDto>> DeleteMotorcycle(string Id)
+    public async Task<ActionResult<MotorcycleDto>> DeleteMotorcycle([FromRoute] string id)
     {
         try
         {
-            var existingMotorcycle = _repository.GetByIdAsync(Id);
-            if (existingMotorcycle == null)
+            var existingMotorcycle = _repository.GetByIdAsync(id);
+            if (existingMotorcycle.Result == null)
             {
-                _logger.LogWarning("Motorcycle with ID: {Id} not found for deletion", Id);
+                _logger.LogWarning("Motorcycle with ID: {Id} not found for deletion", id);
                 return NotFound();
             }
-            _repository.DeleteAsync(existingMotorcycle.Result);
-            _logger.LogInformation("Motorcycle with ID: {Id} deleted successfully", Id);
+
+            var existRegistration = _repository.ExistMotorcycleRegistrationAsync(existingMotorcycle.Result.LicensePlate, existingMotorcycle.Result.Id);
+
+            if (existRegistration.Result)
+            {
+                _logger.LogWarning("Motorcycle with License Plate: {LicensePlate} has active registrations and cannot be deleted", existingMotorcycle.Result.LicensePlate);
+                return Ok("Motorcycle has active registrations and cannot be deleted.");
+            }
+
+            await _repository.DeleteAsync(existingMotorcycle.Result);
+            _logger.LogInformation("Motorcycle with ID: {Id} deleted successfully", id);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while checking existence of motorcycle with ID: {Id}", Id);
-            return StatusCode(500, "Internal server error");
-        }
+            _logger.LogError(ex, "ERROR - Deleting motorcycle with ID: {Id}", id);
+            
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
+            };
 
-        return Ok();
+            return BadRequest(response);
+        }
     }
 
-    [HttpPut("{id}", Name = "UpdateMotorcycle")]
+    [HttpPut("{id}/placa", Name = "UpdateMotorcycle")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<MotorcycleDto>> UpdateMotorcycle(Motorcycle Motorcycle)
+    public async Task<ActionResult<MotorcycleDto>> UpdateMotorcycle([FromRoute]string id, string LicensePlate)
     {
         try
         {
-            var motorcycle = _mapper.Map<Motorcycle>(Motorcycle);
-            _repository.UpdateAsync(motorcycle);
+            var motorcycle = _repository.GetByIdAsync(id);
+            if (motorcycle.Result == null)
+            {
+                _logger.LogWarning("Motorcycle with ID: {Id} not found for update", id);
+                throw new Exception($"Motorcycle with ID: {id} not found for update");
+            }
+
+            _logger.LogInformation($"START - Updating motorcycle: {motorcycle.Id}");
+            Motorcycle motorcycleNewLicencePlate = _mapper.Map<Motorcycle>(motorcycle.Result);
+            motorcycleNewLicencePlate.LicensePlate = LicensePlate;
+            await _repository.UpdateAsync(motorcycleNewLicencePlate);
+            _logger.LogInformation($"END - Updated motorcycle: {motorcycle.Id}");
+            return Ok("Placa modificada com sucesso");
         }
         catch (Exception)
         {
 
-            throw;
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
+            };
+
+            return BadRequest(response);
         }
-
-
-        return Ok();
     }
 }

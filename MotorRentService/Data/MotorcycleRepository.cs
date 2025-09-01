@@ -1,3 +1,10 @@
+#region Mainetence
+/*
+Comment: Roles Registration motorcycle, delete and update motorcycles, new logs.
+Created: 08/31/2024 21:10
+Author:  Gabriel MS
+*/
+#endregion
 using Microsoft.EntityFrameworkCore;
 using MotorRentService.Dtos;
 using MotorRentService.Models;
@@ -17,56 +24,131 @@ public class MotorcycleRepository : IMotorcycleRepository
 
     public async Task<Motorcycle> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        return await _context.Motorcycles
-            .FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
+        try
+        {
+            return await _context.Motorcycles.FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task<IEnumerable<Motorcycle>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Motorcycles
-            .ToListAsync(cancellationToken);
+        try
+        {
+            return await _context.Motorcycles.ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+
     }
 
     public async Task<IEnumerable<Motorcycle>> GetByLicensePlateAsync(string licensePlate, CancellationToken cancellationToken = default)
     {
-        return await _context.Motorcycles
-            .Where(m => m.LicensePlate.Contains(licensePlate))
-            .ToListAsync(cancellationToken);
+        try
+        {
+            return await _context.Motorcycles
+                .Where(m => m.LicensePlate.Contains(licensePlate))
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
     public async Task<IEnumerable<Motorcycle>> GetMotorcyclesById(string id, CancellationToken cancellationToken = default)
     {
-        return await _context.Motorcycles
-            .Where(m => m.Id.Contains(id))
-            .ToListAsync(cancellationToken);
+        try
+        {
+            return await _context.Motorcycles
+                .Where(m => m.Id.Contains(id))
+                .ToListAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task<bool> ExistsByLicensePlateAsync(string licensePlate, CancellationToken cancellationToken = default)
     {
-        return await _context.Motorcycles
-            .AnyAsync(m => m.LicensePlate == licensePlate, cancellationToken);
+        try
+        {
+            return await _context.Motorcycles
+                .AnyAsync(m => m.LicensePlate == licensePlate, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task<bool> ExistsByLicensePlateAsync(string licensePlate, string excludeId, CancellationToken cancellationToken = default)
     {
-        return await _context.Motorcycles
-            .AnyAsync(m => m.LicensePlate == licensePlate && m.Id != excludeId, cancellationToken);
+        try
+        {
+            return await _context.Motorcycles
+                .AnyAsync(m => m.LicensePlate == licensePlate && m.Id != excludeId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task AddAsync(Motorcycle motorcycle, CancellationToken cancellationToken = default)
     {
-        await _context.Motorcycles.AddAsync(motorcycle, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.Motorcycles.AddAsync(motorcycle, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task UpdateAsync(Motorcycle motorcycle, CancellationToken cancellationToken = default)
     {
-        _context.Motorcycles.Update(motorcycle);
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            _context.Motorcycles.Update(motorcycle);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task DeleteAsync(Motorcycle motorcycle, CancellationToken cancellationToken = default)
     {
-        _context.Motorcycles.Remove(motorcycle);
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            _context.Motorcycles.Remove(motorcycle);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
-} 
+
+    public async Task<bool> ExistMotorcycleRegistrationAsync(string licensePlate, string excludeId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _context.Rental
+                .AnyAsync(m => m.MotorcycleId == excludeId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }   
+}

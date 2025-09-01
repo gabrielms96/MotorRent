@@ -14,5 +14,6 @@ public interface IMotorcycleRepository
     Task UpdateAsync(Motorcycle motorcycle, CancellationToken cancellationToken = default);
     Task DeleteAsync(Motorcycle motorcycle, CancellationToken cancellationToken = default);
     Task<IEnumerable<Motorcycle>> GetMotorcyclesById(string id, CancellationToken cancellationToken = default);
+    Task<bool> ExistMotorcycleRegistrationAsync(string licensePlate, string excludeId, CancellationToken cancellationToken = default);
 
 }
