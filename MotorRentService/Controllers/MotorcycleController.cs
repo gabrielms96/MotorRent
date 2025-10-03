@@ -3,6 +3,10 @@
 Comment: Roles Registration motorcycle, delete and update motorcycles, .
 Created: 08/31/2024 21:10
 Author:  Gabriel MS
+
+Comment: Enhanced with business rules motorcycle validation.
+Updated: 10/02/2025 - Added business rules and motorcycle validation services
+Author:  Gabriel MS
 */
 #endregion
 using Amazon.JSII.JsonModel.Api.Response;
@@ -18,7 +22,7 @@ using System.Data;
 
 namespace MotorRentService.Controllers;
 
-[Route("motos/")]
+[Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
 public class MotorcycleController : ControllerBase
@@ -98,7 +102,7 @@ public class MotorcycleController : ControllerBase
             if (motorcycle.Result.Count() > 0)
             {
                 _logger.LogInformation("END - Getting motorcycle with ID: {Id}", id);
-                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<Motorcycle>>(motorcycle.Result));
+                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<MotorcycleDto>>(motorcycle.Result));
             }
             _logger.LogInformation("END - Getting motorcycle with ID: {Id} - NO RECORDS", id);
             return NotFound();
@@ -133,7 +137,7 @@ public class MotorcycleController : ControllerBase
             if (motorcycle.Result.Count() > 0)
             {
                 _logger.LogInformation("END - Getting motorcycle with License Plate: {Id}", id);
-                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<Motorcycle>>(motorcycle.Result));
+                return Ok((List<MotorcycleDto>)_mapper.Map<IEnumerable<MotorcycleDto>>(motorcycle.Result));
             }
             _logger.LogInformation("END - Getting motorcycle with License Plate: {Id} - NO RECORDS", id);
             return NotFound();
@@ -262,6 +266,44 @@ public class MotorcycleController : ControllerBase
         }
         catch (Exception)
         {
+
+            Error response = new Error
+            {
+                Message = "Dados inválidos",
+            };
+
+            return BadRequest(response);
+        }
+    }
+
+    /// <summary>
+    /// Gets motorcycles rented by a specific delivery person
+    /// </summary>
+    /// <param name="deliveryPersonId">Delivery Person ID</param>
+    /// <returns>List of motorcycles rented by the person</returns>
+    [HttpGet("GetRentedByPerson/{deliveryPersonId}")]
+    [ProducesResponseType(typeof(IEnumerable<MotorcycleDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<MotorcycleDto>>> GetRentedByPerson(string deliveryPersonId)
+    {
+        try
+        {
+            _logger.LogInformation("START - Getting motorcycles rented by person with ID: {DeliveryPersonId}", deliveryPersonId);
+
+            var motorcycles = await _repository.GetRentedMotorcyclesByPersonAsync(deliveryPersonId);
+            
+            if (motorcycles.Any())
+            {
+                _logger.LogInformation("END - Getting motorcycles rented by person with ID: {DeliveryPersonId} - Found {Count} motorcycles", deliveryPersonId, motorcycles.Count());
+                return Ok(_mapper.Map<IEnumerable<MotorcycleDto>>(motorcycles));
+            }
+            
+            _logger.LogInformation("END - Getting motorcycles rented by person with ID: {DeliveryPersonId} - NO RECORDS", deliveryPersonId);
+            return Ok(new List<MotorcycleDto>());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ERROR - Getting motorcycles rented by person with ID: {DeliveryPersonId}", deliveryPersonId);
 
             Error response = new Error
             {

@@ -3,6 +3,10 @@
 Comment: Roles Registration motorcycle, delete and update motorcycles, new logs.
 Created: 08/31/2024 21:10
 Author:  Gabriel MS
+
+Comment: Enhanced with business rules validation.
+Updated: 10/02/2025 - Added business rules and validation services
+Author:  Gabriel MS
 */
 #endregion
 using Microsoft.EntityFrameworkCore;
@@ -145,6 +149,25 @@ public class MotorcycleRepository : IMotorcycleRepository
         {
             return await _context.Rental
                 .AnyAsync(m => m.MotorcycleId == excludeId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<IEnumerable<Motorcycle>> GetRentedMotorcyclesByPersonAsync(string deliveryPersonId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _context.Rental
+                .Where(r => r.DeliveryPersonId == deliveryPersonId)
+                .Join(_context.Motorcycles,
+                      rental => rental.MotorcycleId,
+                      motorcycle => motorcycle.Id,
+                      (rental, motorcycle) => motorcycle)
+                .Distinct()
+                .ToListAsync(cancellationToken);
         }
         catch (Exception ex)
         {
