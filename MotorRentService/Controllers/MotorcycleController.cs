@@ -7,6 +7,10 @@ Author:  Gabriel MS
 Comment: Enhanced with business rules motorcycle validation.
 Updated: 10/02/2025 - Added business rules and motorcycle validation services
 Author:  Gabriel MS
+
+Comment: Add Event description to MQ.
+Updated: 10/02/2025 13:15
+Author:  Gabriel MS
 */
 #endregion
 using Amazon.JSII.JsonModel.Api.Response;
@@ -177,11 +181,11 @@ public class MotorcycleController : ControllerBase
                     DeliveryPersonId = "System",
                     MotorcycleId = result.Id,
                     Message = "New motorcycle from year 2024 added.",
+                    Evento = "NotificationPublished",
                     IsProcessed = false
                 };
 
                 var notificationMap = _mapper.Map<NotificationDto>(notification);
-                notification.Evento = "NotificationPublished";
                 _rabbitMqClient.SendNewNotification(notificationMap);
             }
 

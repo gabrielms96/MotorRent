@@ -10,13 +10,16 @@ namespace NotificationMotorRentService.Models
         public int Id { get; set; }
 
         [Required]
-        public string DeliveryPersonId { get; set; }
+        public string DeliveryPersonId { get; set; } = string.Empty;
 
         [Required]
-        public string MotorcycleId { get; set; }
+        public string MotorcycleId { get; set; } = string.Empty;
 
         [Required]
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
+
+        [Required]
+        public string Evento { get; set; } = string.Empty;
 
         [Required]
         public bool IsProcessed { get; set; }

@@ -1,3 +1,10 @@
+#region Mainetence
+/*
+Comment: Added try catch and fixed saving notification.
+Updated: 10/03/2025 13:15
+Author:  Gabriel MS
+*/
+#endregion
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +23,19 @@ namespace NotificationMotorRentService.Data
 
         public void StoreNotification(Notification notification)
         {
-            _context.Notification.Add(notification);
-            SaveChanges();
+            try
+            {
+                _context.Notification.Add(notification);
+                SaveChanges();
+                
+                // Log para debug
+                Console.WriteLine($"Notification stored successfully: ID={notification.Id}, Message={notification.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error storing notification: {ex.Message}");
+                throw;
+            }
         }
 
         public IEnumerable<Notification> GetAllNotifications()

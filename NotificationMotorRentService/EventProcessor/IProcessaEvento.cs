@@ -2,6 +2,6 @@
 {
     public interface IProcessaEvento
     {
-        void Processa(string mensagem);
+        void Process(string mensagem);
     }
 }

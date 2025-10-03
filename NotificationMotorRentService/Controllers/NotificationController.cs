@@ -1,3 +1,10 @@
+#region Mainetence
+/*
+Comment: Added try catch and fixed saving notification.
+Updated: 10/03/2025 13:15
+Author:  Gabriel MS
+*/
+#endregion
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NotificationMotorRentService.Data;
@@ -22,9 +29,21 @@ public class NotificationController : ControllerBase
     [HttpGet("GetAllNotifications")]
     public ActionResult<IEnumerable<NotificationReadDto>> GetAllNotifications()
     {
-        var notifications = _repository.GetAllNotifications();
-
-        return Ok(_mapper.Map<IEnumerable<NotificationReadDto>>(notifications));
+        try
+        {
+            var notifications = _repository.GetAllNotifications();
+            var notificationsList = notifications.ToList();
+            
+            Console.WriteLine($"Retrieved {notificationsList.Count} notifications from database");
+            
+            var result = _mapper.Map<IEnumerable<NotificationReadDto>>(notificationsList);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error retrieving notifications: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
     }
 
 
