@@ -9,7 +9,7 @@ public class NotificationProfile : Profile
     public NotificationProfile()
     {
         CreateMap<NotificationReadDto, Notification>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // ID será gerado automaticamente
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.DeliveryPersonId, opt => opt.MapFrom(src => src.DeliveryPersonId))
             .ForMember(dest => dest.MotorcycleId, opt => opt.MapFrom(src => src.MotorcycleId))
             .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))

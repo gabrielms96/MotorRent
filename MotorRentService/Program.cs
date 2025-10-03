@@ -58,6 +58,11 @@ builder.Services.AddSingleton<IRabbitMqClient, RabbitMqClient>();
 // Event Publisher
 builder.Services.AddScoped<IEventPublisher, EventPublisher>();
 
+// Business Services
+builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IMotorcycleAvailabilityService, MotorcycleAvailabilityService>();
+builder.Services.AddScoped<IRentalCalculationService, RentalCalculationService>();
+
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.Internal().MethodMappingEnabled = false, 
     typeof(DeliveryPersonProfile), 

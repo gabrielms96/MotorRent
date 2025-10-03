@@ -1,4 +1,6 @@
-﻿namespace MotorRentService.Models;
+﻿using MotorRentService.Models.Enums;
+
+namespace MotorRentService.Models;
 
 public class Rental
 {
@@ -15,5 +17,11 @@ public class Rental
     public decimal TotalCost { get; set; }
     public decimal? FineAmount { get; set; }
     public decimal? FinalValue { get; set; }
+    
+    public RentalStatus Status { get; set; } = RentalStatus.Active;
+    
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public DateTime? UpdatedAt { get; set; }
 }
 

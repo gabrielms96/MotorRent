@@ -59,6 +59,9 @@ namespace MotorRentService.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LicensePlate")
                         .IsRequired()
                         .HasColumnType("text");
@@ -66,6 +69,12 @@ namespace MotorRentService.Migrations
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer");
@@ -115,6 +124,9 @@ namespace MotorRentService.Migrations
                     b.Property<DateTime>("ActualDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<decimal>("DailyRate")
                         .HasColumnType("numeric");
 
@@ -147,8 +159,14 @@ namespace MotorRentService.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("TotalCost")
                         .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
