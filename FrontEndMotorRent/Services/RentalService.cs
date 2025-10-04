@@ -11,16 +11,21 @@ public class RentalService : ApiService
 
     public async Task<bool> CreateRentalAsync(RentalCreateDto rental)
     {
-        return await PostAsync("api/teste/Rental/CreateRental", rental);
+        return await PostAsync("api/Rental/CreateRental", rental);
     }
 
     public async Task<RentalDto?> GetRentalByIdAsync(string id)
     {
-        return await GetAsync<RentalDto>($"api/teste/Rental/{id}");
+        return await GetAsync<RentalDto>($"api/Rental/{id}");
     }
 
     public async Task<bool> ReturnRentalAsync(RentalCreateDto rental)
     {
-        return await PutAsync("api/teste/Rental/ReturnRental", rental);
+        return await PutAsync("api/Rental/ReturnRental", rental);
+    }
+
+    public async Task<T?> ProcessRentalReturnAsync<T>(string rentalId, DateTime returnDate)
+    {
+        return await PutAsync<object, T>($"api/Rental/ReturnRental/{rentalId}", returnDate);
     }
 } 

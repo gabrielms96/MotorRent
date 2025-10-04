@@ -18,6 +18,9 @@ public class RentalDto
     public decimal TotalCost { get; set; }
     public decimal? FineAmount { get; set; }
     public decimal? FinalValue { get; set; }
+    public string Status { get; set; } = "Active";
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class RentalCreateDto

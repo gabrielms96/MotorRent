@@ -22,7 +22,7 @@ using System.Text.Json;
 
 namespace MotorRentService.Controllers;
 
-[Route("entregadores/")]
+[Route("api/[controller]")]
 [ApiController]
 [Produces("application/json")]
 public class DeliveryPersonController : Controller

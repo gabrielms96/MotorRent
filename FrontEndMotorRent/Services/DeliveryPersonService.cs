@@ -11,7 +11,7 @@ public class DeliveryPersonService : ApiService
 
     public async Task<bool> CreateDeliveryPersonAsync(DeliveryPersonCreateDto deliveryPerson)
     {
-        return await PostAsync("api/DeliveryPerson/CreateDeliveryPerson", deliveryPerson);
+        return await PostAsync("api/DeliveryPerson", deliveryPerson);
     }
 
     public async Task<DeliveryPersonDto?> GetDeliveryPersonByCNPJAsync(string cnpj)
@@ -21,6 +21,6 @@ public class DeliveryPersonService : ApiService
 
     public async Task<bool> UpdateCNHImageAsync(string cnpj, string cnhImagePath)
     {
-        return await PostAsync($"api/DeliveryPerson/UpdateCNHImage/{cnpj}", cnhImagePath);
+        return await PostAsync($"api/DeliveryPerson/{cnpj}/cnh", cnhImagePath);
     }
 } 

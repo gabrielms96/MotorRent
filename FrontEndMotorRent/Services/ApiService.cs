@@ -95,6 +95,29 @@ public class ApiService
         }
     }
 
+    protected async Task<TResponse?> PutAsync<TRequest, TResponse>(string endpoint, TRequest data)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(data, _jsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            
+            var response = await _httpClient.PutAsync(endpoint, content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<TResponse>(responseJson, _jsonOptions);
+            }
+            
+            return default(TResponse);
+        }
+        catch (Exception)
+        {
+            return default(TResponse);
+        }
+    }
+
     protected async Task<bool> DeleteAsync(string endpoint)
     {
         try

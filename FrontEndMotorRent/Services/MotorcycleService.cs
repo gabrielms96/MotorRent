@@ -33,4 +33,9 @@ public class MotorcycleService : ApiService
     {
         return await DeleteAsync($"api/Motorcycle/{id}");
     }
+
+    public async Task<IEnumerable<MotorcycleDto>?> GetRentedMotorcyclesByPersonAsync(string deliveryPersonId)
+    {
+        return await GetAsync<IEnumerable<MotorcycleDto>>($"api/Motorcycle/GetRentedByPerson/{deliveryPersonId}");
+    }
 } 

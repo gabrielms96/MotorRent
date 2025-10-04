@@ -19,6 +19,12 @@ public class MotorcycleDto
     [Required(ErrorMessage = "Modelo é obrigatório")]
     [Display(Name = "Modelo")]
     public string Model { get; set; } = string.Empty;
+    
+    [Display(Name = "Status")]
+    public string Status { get; set; } = "Available";
+    
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class MotorcycleCreateDto
